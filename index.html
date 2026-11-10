@@ -71,7 +71,7 @@ function score(){var pl=0,dn=0,ex=0;for(var i=0;i<7;i++){if(!S.plan[i])continue;
 if(l&&l.did==="skip"&&l.reason)ex++;else if(l&&l.did&&l.did!=="skip")dn++}
 var den=pl-ex;return{pl:pl,dn:dn,ex:ex,pc:den>0?Math.round(dn/den*100):100}}
 function lastSet(did,i,j,k,before){var best=null;Object.keys(S.logs).sort().forEach(function(d){if(d<before){var l=S.logs[d];if(l.did===did&&l.sets&&l.sets[i]&&l.sets[i][j]&&l.sets[i][j][k])best=l.sets[i][j][k]}});return best}
-function fixS(){if(!S.nut)S.nut=defNut();else if(S.nut.v!==2){S.nut.plan=defNut().plan;S.nut.v=2}if(!S.nut.logs)S.nut.logs={};if(!S.hd)S.hd={}}
+function fixS(){if(!S.nut)S.nut=defNut();else if(S.nut.v!==2){S.nut.plan=defNut().plan;S.nut.v=2}if(!S.nut.logs)S.nut.logs={};if(!S.hd)S.hd={};Object.keys(S.logs).forEach(function(k){var l=S.logs[k];if(!l.did&&(l.sets||l.c||l.dur||l.rpe||l.rate||l.m)){var p=S.plan[(new Date(k+"T12:00:00").getDay()+6)%7];if(p)l.did=p}})}
 function defNut(){var a=function(d,c,m,s){return{d:d,c:c,m:m,s:s}},A=a(["P","R"],["H","P","V","F"],["H","P"],["V","P","F"]),B=a(["H","P","F"],["H","P","V","F"],[],["V","P","P","R"]),E=a([],["H","P","V","F"],[],["V","P","F"]);return{plan:[A,B,A,B,B,E,E].map(function(x){return JSON.parse(JSON.stringify(x))}),logs:{},v:2}}
 var G={H:"Hidrato",P:"Proteína",F:"Fruta",V:"Verdura",R:"Frutos rojos"},GC={H:"#d97706",P:"#dc2626",F:"#16a34a",V:"#65a30d",R:"#9333ea"},MN={d:"Desayuno",c:"Comida",m:"Merienda",s:"Cena"},MK=["d","c","m","s"];
 var FOODS={F:[["f1","Fruta grande (1 pieza)"],["f2","Fruta pequeña (2 piezas)"]],H:[["leg","Legumbres 200 g","leg"],["pan","Pan 100 g"],["arr","Arroz 85 g"],["pas","Pasta 85 g"],["pat","Patata 350 g"]],P:[["pol","Pollo/pavo 150 g"],["roj","Carne roja 150 g","rojo"],["pbl","Pescado blanco 150 g","blanco"],["paz","Pescado azul 150 g","azul"],["emb","Embutido 40 g"],["qs","Queso fresco sólido 40 g"],["qb","Queso fresco batido 250 g"],["ham","Hamburguesa (1)"],["lon","Longaniza (1)"],["tor","Tortilla"],["hue","2 huevos duros"]]};
@@ -169,7 +169,7 @@ function dataView(){return'<h1>Copia de seguridad</h1><div class="card"><p class
 function setP(o,path,v){for(var x=0;x<path.length-1;x++){var k=path[x];if(o[k]==null)o[k]=isNaN(path[x+1])?{}:[];o=o[k]}o[path[path.length-1]]=v}
 document.addEventListener("click",function(e){var t=e.target.closest("button,.day,[data-nd]");if(!t)return;var d=t.dataset;
 if(d.nav){V.tab=d.nav;V.day=null;V.nd=null}else if(d.off){V.off+=+d.off}else if(d.day!=null&&d.day!==""){V.day=+d.day}else if(d.back){V.day=null}else if(d.nd!=null&&d.nd!==""){V.nd=+d.nd}else if(d.nback){V.nd=null}else if(d.nadd){var q=d.nadd.split("|");S.nut.plan[+q[0]][q[1]].push(q[2]);V.po=+q[0];save()}else if(d.nrm){var q=d.nrm.split("|");S.nut.plan[+q[0]][q[1]].splice(+q[2],1);V.po=+q[0];save()}
-else if(d.rate){var k=iso(dayDate(V.day));S.logs[k]=S.logs[k]||{};S.logs[k].rate=+d.rate;save()}
+else if(d.rate){var k=iso(dayDate(V.day));S.logs[k]=S.logs[k]||{};S.logs[k].rate=+d.rate;if(!S.logs[k].did&&S.plan[V.day])S.logs[k].did=S.plan[V.day];save()}
 else if(d.add){S.sessions[d.add].ex.push(["Nuevo ejercicio",3,"10"]);save()}
 else if(d.del){var q=d.del.split("|");S.sessions[q[0]].ex.splice(+q[1],1);save()}
 else if(d.print){try{window.print()}catch(er){}return}else if(d.copy){var x=document.getElementById("exp");x.select();try{navigator.clipboard.writeText(x.value)}catch(er){document.execCommand("copy")}t.textContent="Copiado ✓";return}
@@ -182,7 +182,7 @@ if(d.plan!=null&&d.plan!==""){S.plan[+d.plan]=t.value||null;save();return}
 if(d.ex){var q=d.ex.split("|");S.sessions[q[0]].ex[+q[1]][+q[2]]=t.value;save();return}
 if(d.f&&V.day!==null){var k=iso(dayDate(V.day));S.logs[k]=S.logs[k]||{};var l=S.logs[k];
 if(d.f==="did"){l.did=t.value||undefined;if(t.value===S.plan[V.day]){}save();render();return}
-setP(l,d.f.split("|").map(function(s){return/^\d+$/.test(s)?+s:s}),t.value);
+if(!l.did&&S.plan[V.day])l.did=S.plan[V.day];setP(l,d.f.split("|").map(function(s){return/^\d+$/.test(s)?+s:s}),t.value);
 if(d.f==="reason"){}save()}});
 render();
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
