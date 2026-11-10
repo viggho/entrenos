@@ -125,7 +125,7 @@ return'<div class="row sp noprint"><button data-off="-1">‹</button><b>Informe 
 +summary()+(zt?'<div class="card"><h2>Minutos por zona de FC</h2><div class="mu">'+z.map(function(v,x){return"Z"+(x+1)+": "+v}).join(" · ")+"</div></div>":"")+garminCard()
 +'<div class="card"><h2>Objetivos de nutrición</h2>'+OB.map(function(o){return'<div class="row sp" style="margin-bottom:6px"><span>'+o[1]+"</span><b>"+n.c[o[0]]+"/"+o[2]+"</b></div>"}).join("")+"</div>"
 +(just?'<div class="card"><h2>Cambios justificados</h2>'+just+"</div>":"")
-+'<button class="p noprint" data-print="1" style="width:100%">Imprimir / guardar PDF</button><div class="mu noprint" style="margin-top:6px">Si el botón no responde, usa el menú Compartir de Safari para guardar la página como PDF.</div>"}
++'<button class="p noprint" data-print="1" style="width:100%">Imprimir / guardar PDF</button><div class="mu noprint" style="margin-top:6px">Si el botón no responde, usa el menú Compartir de Safari para guardar la página como PDF.</div>'}
 function render(){var h="";
 if(V.tab==="week"&&V.day===null)h=week();else if(V.tab==="week")h=dayView();else if(V.tab==="nut")h=V.nd===null?nutWeek():nutDay();else if(V.tab==="rep")h=repView();else if(V.tab==="plan")h=planView();else h=dataView();
 document.getElementById("app").innerHTML=h;
